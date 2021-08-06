@@ -1,0 +1,54 @@
+import random
+
+default_moves = ["rock", "paper", "scissors"]
+
+
+def create_rules(input_moves):
+    global moves
+    global beats
+    if input_moves == "":
+        moves = default_moves
+    else:
+        moves = input_moves.split(",")
+    beats = {move: [] for move in moves}
+    for move in moves:
+        i = moves.index(move)
+        new_list = moves[i + 1:] + moves[:i]
+        beats[move].extend(new_list[:len(new_list) // 2])
+
+
+def rps_round(usr_move):
+    global user_score
+    if usr_move not in moves:
+        return "Invalid input"
+    computer_move = random.choice(moves)
+    if computer_move in beats[usr_move]:
+        return f"Sorry, but the computer chose {computer_move}"
+    elif user_move in beats[computer_move]:
+        user_score += 100
+        return f"Well done. The computer chose {computer_move} and failed"
+    else:
+        user_score += 50
+        return f"There is a draw ({computer_move})"
+
+
+name = input("Enter your name: ")
+print(f"Hello, {name}")
+create_rules(input())
+print("Okay, let's start")
+scores_file = open("rating.txt", "r")
+scores = {}
+for line in scores_file:
+    scores[line.split()[0]] = int(line.split()[1])
+scores_file.close()
+user_score = scores[name] if name in scores else 0
+
+while True:
+    user_move = input()
+    if user_move == "!exit":
+        print("Bye!")
+        break
+    if user_move == "!rating":
+        print(f"Your rating: {user_score}")
+    else:
+        print(rps_round(user_move))
